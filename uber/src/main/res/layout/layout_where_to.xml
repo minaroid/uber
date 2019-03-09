@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_gravity="top"
+    android:layout_marginStart="15dp"
+    android:layout_marginTop="80dp"
+    android:layout_marginEnd="15dp"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/colorWhite"
+        android:elevation="5dp"
+        android:orientation="horizontal"
+        android:paddingStart="15dp"
+        android:paddingTop="15dp"
+        android:paddingEnd="15dp"
+        android:paddingBottom="15dp">
+
+        <ImageView
+            android:layout_width="5dp"
+            android:layout_height="8dp"
+            android:layout_marginStart="5dp"
+            android:layout_gravity="center_vertical"
+            android:src="@drawable/ic_rounded_black_square_shape" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="25dp"
+            android:text="Where to ?"
+            android:textSize="20sp"
+            android:textStyle="normal" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingStart="15dp"
+        android:paddingTop="8dp"
+        android:paddingEnd="15dp"
+        android:elevation="2dp"
+        android:paddingBottom="15dp"
+        android:background="@drawable/shape_where_go_border">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:src="@drawable/ic_star_black_24dp" />
+
+      <LinearLayout
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:orientation="vertical"
+          android:layout_marginStart="10dp">
+          <TextView
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:text="El Raml Station"
+              android:textColor="@color/colorBlack"
+              android:textSize="18sp" />
+          <TextView
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:text="Al Mesallah Sharq, Qesm Al Attarin"
+              android:textSize="15sp" />
+      </LinearLayout>
+
+    </LinearLayout>
+
+</LinearLayout>

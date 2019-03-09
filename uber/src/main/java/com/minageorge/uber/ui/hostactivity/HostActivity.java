@@ -1,10 +1,13 @@
 package com.minageorge.uber.ui.hostactivity;
 
+import android.animation.AnimatorInflater;
+import android.animation.AnimatorSet;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.location.Location;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -13,7 +16,6 @@ import android.util.Log;
 import android.view.View;
 import android.view.animation.Interpolator;
 import android.view.animation.LinearInterpolator;
-import android.widget.TextView;
 
 import com.github.pwittchen.reactivenetwork.library.rx2.ReactiveNetwork;
 import com.google.android.gms.location.LocationCallback;
@@ -29,6 +31,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
 import com.minageorge.uber.R;
@@ -46,6 +49,7 @@ import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.view.GravityCompat;
@@ -71,6 +75,8 @@ public class HostActivity extends AppCompatActivity {
     NavigationView navigationView;
     @BindView(R.id.coordinator)
     CoordinatorLayout coordinatorLayout;
+    @BindView(R.id.im_gps)
+    FloatingActionButton myLocationActionBtn;
 
     private GoogleMap mainMap;
     private LocationCallback locationCallback;
@@ -79,12 +85,15 @@ public class HostActivity extends AppCompatActivity {
     private CompositeDisposable disposable = new CompositeDisposable();
     private HashMap<String, Marker> allMarkersHashMap = new HashMap<>();
     private List<Marker> allMarkersList = new ArrayList<>();
-    private float zoomLevel = 15;
+    private float zoomLevel = 16;
     private boolean isMarkerRotating;
     private Random random = new Random();
     private Handler handler = new Handler(Looper.getMainLooper());
     private Snackbar snackbar;
+    private AnimatorSet myLocationBtnAnimation;
+    private boolean isCameraMoved;
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     @SuppressLint("MissingPermission")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -93,15 +102,25 @@ public class HostActivity extends AppCompatActivity {
 
         UberApplication.getComponent(this)
                 .plus(new ActivityModule(this)).inject(this);
-
         ButterKnife.bind(this);
+
         hostViewModel = ViewModelProviders.of(this, hostViewModelFactory).get(HostViewModel.class);
         hostViewModel.getMarkersLiveData().observe(this, this::renderMarkers);
         setUpMainMap();
         locationCallback = createLocationCallback();
         LocationServices.getFusedLocationProviderClient(new WeakReference<Context>(this).get())
                 .requestLocationUpdates(LocationRequest.create(), locationCallback, Looper.myLooper());
+
         checkNetworkState();
+        initAnimation();
+
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    private void initAnimation() {
+        myLocationBtnAnimation = (AnimatorSet) AnimatorInflater.loadAnimator(this, R.animator.object_cart_hide);
+        myLocationBtnAnimation.setTarget(myLocationActionBtn);
+        myLocationBtnAnimation.start();
     }
 
     @Override
@@ -127,10 +146,13 @@ public class HostActivity extends AppCompatActivity {
     @OnClick(R.id.im_gps)
     void onMyLocationClicked() {
         if (myLocationLatLng != null) {
+            isCameraMoved = false;
+            myLocationBtnAnimation.start();
             CameraPosition target = CameraPosition.builder()
                     .target(myLocationLatLng)
                     .zoom(zoomLevel)
                     .build();
+
             mainMap.animateCamera(CameraUpdateFactory.newCameraPosition(target));
             for (Marker marker : allMarkersHashMap.values()) {
                 marker.setIcon(BitmapDescriptorFactory.
@@ -140,22 +162,30 @@ public class HostActivity extends AppCompatActivity {
         }
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     private void setUpMainMap() {
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map_main);
         assert mapFragment != null;
         mapFragment.getMapAsync(googleMap -> {
             googleMap.getUiSettings().setRotateGesturesEnabled(false);
-            googleMap.setMapStyle(
-                    MapStyleOptions.loadRawResourceStyle(this, R.raw.style_json));
-//            googleMap.setOnMapClickListener(hostViewModel::insertValue);
+            googleMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(this, R.raw.style_json));
             googleMap.setOnCameraMoveStartedListener(level -> {
+
+                if (level != 3) {
+                    if (!isCameraMoved) {
+                        isCameraMoved = true;
+                        myLocationBtnAnimation.reverse();
+                    }
+                }
+
                 for (Marker marker : allMarkersHashMap.values()) {
                     marker.setIcon(BitmapDescriptorFactory.
                             fromBitmap(resizeMapIcons(BitmapFactory.decodeResource(getResources(), R.drawable.car),
                                     (int) (googleMap.getCameraPosition().zoom * 3), (int) (googleMap.getCameraPosition().zoom * 5.5))));
                 }
             });
+            googleMap.setOnMapClickListener(hostViewModel::insertValue);
             mainMap = googleMap;
         });
     }
