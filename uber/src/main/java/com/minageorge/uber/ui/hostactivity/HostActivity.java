@@ -171,7 +171,6 @@ public class HostActivity extends AppCompatActivity {
             googleMap.getUiSettings().setRotateGesturesEnabled(false);
             googleMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(this, R.raw.style_json));
             googleMap.setOnCameraMoveStartedListener(level -> {
-
                 if (level != 3) {
                     if (!isCameraMoved) {
                         isCameraMoved = true;
@@ -208,8 +207,9 @@ public class HostActivity extends AppCompatActivity {
         }
 
         allMarkersList.addAll(allMarkersHashMap.values());
-        disposable.add(Observable.interval(5, TimeUnit.SECONDS)
-                .subscribe(v -> handler.post(() -> rotateMarker(allMarkersList.get(random.nextInt(allMarkersList.size())), random.nextInt(350)))));
+        if (allMarkersList.size() != 0)
+            disposable.add(Observable.interval(5, TimeUnit.SECONDS)
+                    .subscribe(v -> handler.post(() -> rotateMarker(allMarkersList.get(random.nextInt(allMarkersList.size())), random.nextInt(350)))));
     }
 
     private LocationCallback createLocationCallback() {
