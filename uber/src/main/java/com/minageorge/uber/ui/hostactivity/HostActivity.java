@@ -34,11 +34,9 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
+import com.jakewharton.rxrelay2.BehaviorRelay;
 import com.minageorge.uber.R;
-import com.minageorge.uber.UberApplication;
-import com.minageorge.uber.di.activity.ActivityModule;
-import com.minageorge.uber.di.scope.ActivityScope;
-import com.minageorge.uber.store.model.markeritem.MarkerEntity;
+import com.minageorge.uber.store.model.markermodel.MarkerEntity;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -47,27 +45,22 @@ import java.util.List;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
-import javax.inject.Inject;
-
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.lifecycle.ViewModelProviders;
 import butterknife.BindView;
-import butterknife.ButterKnife;
 import butterknife.OnClick;
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.schedulers.Schedulers;
 
-@ActivityScope
 public class HostActivity extends AppCompatActivity {
 
-    @Inject
-    HostViewModelFactory hostViewModelFactory;
+//    @Inject
+//    HostViewModelFactory hostViewModelFactory;
 
     @BindView(R.id.drawerLayout)
     DrawerLayout drawerLayout;
@@ -100,12 +93,12 @@ public class HostActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        UberApplication.getComponent(this)
-                .plus(new ActivityModule(this)).inject(this);
-        ButterKnife.bind(this);
-
-        hostViewModel = ViewModelProviders.of(this, hostViewModelFactory).get(HostViewModel.class);
-        hostViewModel.getMarkersLiveData().observe(this, this::renderMarkers);
+//        UbApplication.getComponent(this)
+//                .plus(new ActivityModule(this)).inject(this);
+//        ButterKnife.bind(this);
+//
+//        hostViewModel = ViewModelProviders.of(this, hostViewModelFactory).get(HostViewModel.class);
+//        hostViewModel.getMarkersLiveData().observe(this, this::renderMarkers);
         setUpMainMap();
         locationCallback = createLocationCallback();
         LocationServices.getFusedLocationProviderClient(new WeakReference<Context>(this).get())
@@ -184,32 +177,33 @@ public class HostActivity extends AppCompatActivity {
                                     (int) (googleMap.getCameraPosition().zoom * 3), (int) (googleMap.getCameraPosition().zoom * 5.5))));
                 }
             });
-            googleMap.setOnMapClickListener(hostViewModel::insertValue);
+//            googleMap.setOnMapClickListener(hostViewModel::insertValue);
             mainMap = googleMap;
         });
     }
 
     private void renderMarkers(List<MarkerEntity> markerEntities) {
-        mainMap.clear();
-        allMarkersList.clear();
-        allMarkersHashMap.clear();
-        mainMap.addMarker(new MarkerOptions()
-                .position(myLocationLatLng)
-                .icon(BitmapDescriptorFactory.fromResource(R.drawable.main_menu_location_icon)));
-        for (MarkerEntity markerEntity : markerEntities) {
-            Marker marker = mainMap.addMarker(new MarkerOptions()
-                    .anchor(0.5f, 0.5f)
-                    .flat(true)
-                    .position(new LatLng(Double.parseDouble(markerEntity.getNewLatitude()), Double.parseDouble(markerEntity.getNewLongitude())))
-                    .icon(BitmapDescriptorFactory.fromBitmap(resizeMapIcons(BitmapFactory.decodeResource(getResources(), R.drawable.car), (int) (zoomLevel * 3), (int) (zoomLevel * 5.5)))));
-            allMarkersHashMap.put(markerEntity.getId(), marker);
-            Log.d("MarkerKey ", markerEntity.getId());
-        }
 
-        allMarkersList.addAll(allMarkersHashMap.values());
-        if (allMarkersList.size() != 0)
+////        mainMap.clear();
+////        allMarkersList.clear();
+////        allMarkersHashMap.clear();
+////        mainMap.addMarker(new MarkerOptions()
+////                .position(myLocationLatLng)
+////                .icon(BitmapDescriptorFactory.fromResource(R.drawable.main_menu_location_icon)));
+////        for (MarkerEntity markerEntity : markerEntities) {
+////            Marker marker = mainMap.addMarker(new MarkerOptions()
+////                    .anchor(0.5f, 0.5f)
+////                    .flat(true)
+////                    .position(new LatLng(Double.parseDouble(markerEntity.getNewLatitude()), Double.parseDouble(markerEntity.getNewLongitude())))
+////                    .icon(BitmapDescriptorFactory.fromBitmap(resizeMapIcons(BitmapFactory.decodeResource(getResources(), R.drawable.car), (int) (zoomLevel * 3), (int) (zoomLevel * 5.5)))));
+////            allMarkersHashMap.put(markerEntity.getId(), marker);
+////            Log.d("MarkerKey ", markerEntity.getId());
+////        }
+////
+////        allMarkersList.addAll(allMarkersHashMap.values());
+////        if (allMarkersList.size() != 0)
             disposable.add(Observable.interval(5, TimeUnit.SECONDS)
-                    .subscribe(v -> handler.post(() -> rotateMarker(allMarkersList.get(random.nextInt(allMarkersList.size())), random.nextInt(350)))));
+                    .subscribe(v ->  handler.post(() -> rotateMarker(allMarkersList.get(random.nextInt(allMarkersList.size())), random.nextInt(350)))));
     }
 
     private LocationCallback createLocationCallback() {
@@ -226,7 +220,7 @@ public class HostActivity extends AppCompatActivity {
                             .zoom(zoomLevel)
                             .build();
                     mainMap.moveCamera(CameraUpdateFactory.newCameraPosition(target));
-                    hostViewModel.fetchDataFromLocal(myLocationLatLng);
+//                    hostViewModel.fetchDataFromLocal(myLocationLatLng);
                 }
             }
         };
@@ -270,7 +264,7 @@ public class HostActivity extends AppCompatActivity {
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(connectivity -> {
                     if (connectivity.available()) {
-                        hostViewModel.fetchDataFromNetwork();
+//                        hostViewModel.fetchDataFromNetwork();
                         if (snackbar != null) {
                             snackbar.dismiss();
                         }

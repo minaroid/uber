@@ -3,9 +3,7 @@ package com.minageorge.uber.ui.hostactivity;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.minageorge.uber.store.model.markeritem.MarkerEntity;
-import com.minageorge.uber.store.model.markeritem.MarkerItemMapper;
-import com.minageorge.uber.store.room.UberRoomStore;
+
 
 import java.util.List;
 
@@ -23,40 +21,40 @@ public class HostViewModel extends ViewModel {
 
     private DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
     private CompositeDisposable disposable = new CompositeDisposable();
-    private MarkerItemMapper markerItemMapper = new MarkerItemMapper();
-    private MutableLiveData<List<MarkerEntity>> markersLiveData = new MutableLiveData<>();
-    private UberRoomStore uberRoomStore;
+//    private MarkerItemMapper markerItemMapper = new MarkerItemMapper();
+//    private MutableLiveData<List<MarkerEntity>> markersLiveData = new MutableLiveData<>();
+//    private UberRoomStore uberRoomStore;
 
-    HostViewModel(UberRoomStore uberRoomStore) {
-        this.uberRoomStore = uberRoomStore;
-    }
+//    HostViewModel(UberRoomStore uberRoomStore) {
+//        this.uberRoomStore = uberRoomStore;
+//    }
 
-    public void fetchDataFromNetwork() {
-        disposable.add(RxFirebaseDatabase.observeSingleValueEvent(mDatabase)
-                .map(markerItemMapper::toMarkerItems)
-                .subscribe(markers -> uberRoomStore.getMarkerDao().upsert(markers)));
-    }
+//    public void fetchDataFromNetwork() {
+//        disposable.add(RxFirebaseDatabase.observeSingleValueEvent(mDatabase)
+//                .map(markerItemMapper::toMarkerItems)
+//                .subscribe(markers -> uberRoomStore.getMarkerDao().upsert(markers)));
+//    }
+//
+//    void fetchDataFromLocal(LatLng latLng) {
+//        disposable.add(uberRoomStore.getMarkerDao().getMarkers().toObservable()
+//                .map(markers -> markerItemMapper.toMarkerItems(markers, latLng))
+//                .subscribeOn(Schedulers.newThread())
+//                .observeOn(AndroidSchedulers.mainThread())
+//                .subscribe(markersLiveData::setValue));
+//    }
 
-    void fetchDataFromLocal(LatLng latLng) {
-        disposable.add(uberRoomStore.getMarkerDao().getMarkers().toObservable()
-                .map(markers -> markerItemMapper.toMarkerItems(markers, latLng))
-                .subscribeOn(Schedulers.newThread())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(markersLiveData::setValue));
-    }
+//    public LiveData<List<MarkerEntity>> getMarkersLiveData() {
+//        return markersLiveData;
+//    }
 
-    public LiveData<List<MarkerEntity>> getMarkersLiveData() {
-        return markersLiveData;
-    }
-
-    public void insertValue(LatLng latLng) {
-        mDatabase.push().setValue(new MarkerEntity(
-                String.valueOf(System.currentTimeMillis()),
-                String.valueOf(latLng.latitude),
-                String.valueOf(latLng.longitude),
-                String.valueOf(latLng.latitude),
-                String.valueOf(latLng.longitude)));
-    }
+//    public void insertValue(LatLng latLng) {
+//        mDatabase.push().setValue(new MarkerEntity(
+//                String.valueOf(System.currentTimeMillis()),
+//                String.valueOf(latLng.latitude),
+//                String.valueOf(latLng.longitude),
+//                String.valueOf(latLng.latitude),
+//                String.valueOf(latLng.longitude)));
+//    }
 
     @Override
     protected void onCleared() {

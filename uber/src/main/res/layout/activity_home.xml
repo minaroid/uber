@@ -27,6 +27,17 @@
             android:layout_marginTop="25dp"
             android:src="@drawable/ic_menu_black_24dp" />
 
+        <ProgressBar
+            android:id="@+id/progress_bar"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:layout_marginEnd="20dp"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="25dp"
+            android:visibility="gone"
+            android:indeterminateTint="@color/colorPrimary"
+            android:layout_gravity="top|end" />
+
         <include layout="@layout/layout_where_to" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
